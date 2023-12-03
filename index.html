@@ -86,7 +86,10 @@
         // Update QR code content with the current URL
         var currentURL = window.location.origin + window.location.pathname + '?' + urlParams.toString();
         qrcode.clear();  // Clear previous content
-        qrcode.makeCode(currentURL);
+        qrcode.makeCode(currentURL) {
+        width: 128,
+        height: 128
+        });
     }
 
     // Run the function on page load
