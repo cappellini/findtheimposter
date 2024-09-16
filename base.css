@@ -1,0 +1,111 @@
+body {
+  margin: 2vh 2vw;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-flex: row;
+      -ms-flex: row;
+          flex: row;
+  gap: 2rem;
+  font-family: "Roboto";
+}
+
+body > * {
+  -webkit-box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+          box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+  padding: 1rem;
+  height: 150px;
+  width: 150px;
+  border-radius: 5px;
+}
+
+.options {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  gap: 0.3rem;
+  text-align: center;
+}
+
+.options .title {
+  font-weight: 600;
+}
+
+.options .labeled-input {
+  width: 100%;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: row;
+          flex-direction: row;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+}
+
+.options .labeled-input label {
+  font-size: 0.8rem;
+  -ms-flex-line-pack: center;
+      align-content: center;
+}
+
+.options .labeled-input input {
+  width: 50px;
+}
+
+.options button {
+  border: none;
+  border-radius: 3px;
+  background-color: #f0c800;
+  padding: 0.2rem;
+  width: 100%;
+}
+
+.options button:hover {
+  cursor: pointer;
+  background-color: #f0dc00;
+}
+
+#output {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  background-color: #0066ff;
+  color: white;
+  font-size: 1.5rem;
+}
+
+#output .secret {
+  display: none;
+}
+
+#qrcode {
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+}
+/*# sourceMappingURL=base.css.map */

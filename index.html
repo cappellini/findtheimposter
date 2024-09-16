@@ -1,100 +1,287 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Find the imposter</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/seedrandom/3.0.5/seedrandom.min.js"></script>
     <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <link rel="stylesheet" type="text/css" href="./base.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
 </head>
+
 <body>
 
-<label for="playerNumber">Player Number:</label>
-<input type="number" id="playerNumber" placeholder="Enter player number">
+    <div class="options">
+        <div class="title">Options</div>
 
-<label for="totalPlayers">Total Number of Players:</label>
-<input type="number" id="totalPlayers" placeholder="Enter total number of players">
+        <div class="labeled-input">
+            <label for="totalPlayers">Player Count:</label>
+            <input type="number" id="totalPlayers" placeholder="3" min="3" max="10">
+        </div>
+        <div class="labeled-input">
+            <label for="playerNumber">Player Number:</label>
+            <input type="number" id="playerNumber" placeholder="0" min="1">
+        </div>
 
-<button onclick="generateWord()">Generate word</button>
+        <button onclick="generateWord(1)">Generate Word</button>
+    </div>
 
-<div id="output"></div>
-<div id="qrcode"></div>
+    <div id="output" style='display: none'></div>
+    <div id="qrcode"></div>
 
-<script>
-    function getRandomElement(arr) {
-        return arr[Math.floor(Math.random() * arr.length)];
-    }
+    <script>
+        $(function() {
+            generateWord()
+        })
 
-    function getQueryParameter(name) {
-        var urlParams = new URLSearchParams(window.location.search);
-        return urlParams.get(name);
-    }
-
-    // Initialize QR code instance
-    var qrcode = new QRCode(document.getElementById("qrcode"), {
-        width: 128,
-        height: 128
-    });
-
-    function generateWord() {
-        var playerNumberInput = document.getElementById("playerNumber");
-        var totalPlayersInput = document.getElementById("totalPlayers");
-        var outputDiv = document.getElementById("output");
-
-        // Get seed and total players from URL or generate random values
-        var seed = getQueryParameter('seed') || Math.floor(Math.random() * 1e5);  // Limit to 5 digits
-        var totalPlayers = totalPlayersInput.value || getQueryParameter('totalPlayers') || 8;
-
-        Math.seedrandom(seed);
-
-        var word_pairs = [["hallo", "tschüss"], ["apfel", "birne"], ["baum", "strauch"]];
-        var pair = getRandomElement(word_pairs);
-
-        outputDiv.innerHTML = "<p>Selected word pair: " + pair[0] + " - " + pair[1] + "</p>";
-
-        if (Math.random() < 0.5) {
-            pair = [pair[1], pair[0]];
+        function getRandomElement(arr) {
+            return arr[Math.floor(Math.random() * arr.length)];
         }
 
-        outputDiv.innerHTML += "<p>Shuffled word pair: " + pair[0] + " - " + pair[1] + "</p>";
-
-        var nr_of_imposters = 2;
-        var nr_of_spies = 1;
-        var nr_of_normals = Math.max(totalPlayers - nr_of_imposters - nr_of_spies, 0);
-
-        var roles = Array(nr_of_imposters).fill("imposter").concat(Array(nr_of_spies).fill("spy"), Array(nr_of_normals).fill("normal"));
-        roles = roles.sort(() => Math.random() - 0.5);
-
-        var role = roles[playerNumberInput.value ? parseInt(playerNumberInput.value) : 5];
-
-        var word = "you're spy";
-
-        if (role === "normal") {
-            word = pair[0];
-        } else if (role === "imposter") {
-            word = pair[1];
+        function getQueryParameter(name) {
+            var urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
         }
 
-        outputDiv.innerHTML += "<p>Generated word: " + word + "</p>";
-
-        // Set the seed and total players in the URL
-        var urlParams = new URLSearchParams(window.location.search);
-        urlParams.set('seed', seed);
-        urlParams.set('totalPlayers', totalPlayers);
-        window.history.replaceState({}, '', window.location.pathname + '?' + urlParams.toString());
-
-        // Update QR code content with the current URL
-        var currentURL = window.location.origin + window.location.pathname + '?' + urlParams.toString();
-        qrcode.clear();  // Clear previous content
-        qrcode.makeCode(currentURL), {
+        // Initialize QR code instance
+        var qrcode = new QRCode(document.getElementById("qrcode"), {
             width: 128,
             height: 128
-        };
-    }
+        });
 
-    // Run the function on page load
-    window.onload = generateWord;
-</script>
+        function generateWord(mode=0) {
+            if (mode == 1) {
+                $("#output").toggle()
+                $("#qrcode").toggle()
+            }
+            const PC = getQueryParameter('totalPlayers')
+            $("#totalPlayers").val(PC)
+            $("#playerNumber").val(getQueryParameter('playerNumber'))
+            $("#playerNumber").attr("max", PC)
+            var playerNumberInput = document.getElementById("playerNumber");
+            var totalPlayersInput = document.getElementById("totalPlayers");
+            var outputDiv = document.getElementById("output");
+
+            // Get seed and total players from URL or generate random values
+            var seed = getQueryParameter('seed') || Math.floor(Math.random() * 1e5);  // Limit to 5 digits
+            var totalPlayers = totalPlayersInput.value || getQueryParameter('totalPlayers') || 8;
+
+            Math.seedrandom(seed);
+
+            var pair = getRandomElement(word_list);
+
+            outputDiv.innerHTML = "<p class='secret'>Selected word pair: " + pair[0] + " - " + pair[1] + "</p>";
+
+            if (Math.random() < 0.5) {
+                pair = [pair[1], pair[0]];
+            }
+
+            outputDiv.innerHTML += "<p class='secret'>Shuffled word pair: " + pair[0] + " - " + pair[1] + "</p>";
+
+            var nr_of_imposters = 2;
+            var nr_of_spies = 1;
+            var nr_of_normals = Math.max(totalPlayers - nr_of_imposters - nr_of_spies, 0);
+
+            var roles = Array(nr_of_imposters).fill("imposter").concat(Array(nr_of_spies).fill("spy"), Array(nr_of_normals).fill("normal"));
+            roles = roles.sort(() => Math.random() - 0.5);
+
+            var role = roles[playerNumberInput.value ? parseInt(playerNumberInput.value) : 5];
+
+            var word = "You are a spy!";
+
+            if (role === "normal") {
+                word = pair[0];
+            } else if (role === "imposter") {
+                word = pair[1];
+            }
+
+            outputDiv.innerHTML += "<p class='the-word'>" + word + "</p>";
+
+            // Set the seed and total players in the URL
+            var urlParams = new URLSearchParams(window.location.search);
+            urlParams.set('seed', seed);
+            urlParams.set('totalPlayers', totalPlayers);
+            window.history.replaceState({}, '', window.location.pathname + '?' + urlParams.toString());
+
+            // Update QR code content with the current URL
+            var currentURL = window.location.origin + window.location.pathname + '?' + urlParams.toString();
+            qrcode.clear();  // Clear previous content
+            qrcode.makeCode(currentURL), {
+                width: 128,
+                height: 128
+            };
+        }
+
+        
+        const word_list = [
+            ["Eiskaffee", "Milchshake"],
+            ["Ritter", "Gladiator"],
+            ["Strohhalm", "Spaghetti"],
+            ["Weihrauch", "Parfüm"],
+            ["Hund", "Wolf"],
+            ["Quelle", "Brunnen"],
+            ["Honig", "Ahornsirup"],
+            ["Brille", "Lupe"],
+            ["Kamel", "Dromedar"],
+            ["Katze", "Tiger"],
+            ["Stift", "Pinsel"],
+            ["Auto", "Motorrad"],
+            ["Brot", "Brötchen"],
+            ["Haus", "Villa"],
+            ["Mond", "Planet"],
+            ["Schiff", "Boot"],
+            ["Berg", "Hügel"],
+            ["Zucker", "Salz"],
+            ["Tasche", "Rucksack"],
+            ["Tee", "Kaffee"],
+            ["Schnee", "Regen"],
+            ["Trompete", "Saxophon"],
+            ["Fahrrad", "Roller"],
+            ["Flugzeug", "Hubschrauber"],
+            ["Lampe", "Kerze"],
+            ["Erdbeere", "Himbeere"],
+            ["Apfel", "Birne"],
+            ["Wald", "Dschungel"],
+            ["Schule", "Universität"],
+            ["Sonne", "Stern"],
+            ["Fenster", "Tür"],
+            ["Schmetterling", "Biene"],
+            ["Zug", "U-Bahn"],
+            ["Haifisch", "Delfin"],
+            ["Bleistift", "Kugelschreiber"],
+            ["Sofa", "Sessel"],
+            ["Ballon", "Drachen"],
+            ["Schlange", "Eidechse"],
+            ["Blume", "Baum"],
+            ["Laptop", "Tablet"],
+            ["Brücke", "Tunnel"],
+            ["Pizza", "Burger"],
+            ["Buch", "Zeitschrift"],
+            ["Koffer", "Tasche"],
+            ["Pullover", "Jacke"],
+            ["Banane", "Mango"],
+            ["Pinguin", "Eisbär"],
+            ["Hose", "Rock"],
+            ["Schlüssel", "Schloss"],
+            ["Radio", "Fernseher"],
+            ["Elefant", "Nashorn"],
+            ["Krankenhaus", "Klinik"],
+            ["Kamera", "Fotoapparat"],
+            ["Messer", "Schere"],
+            ["Kino", "Theater"],
+            ["König", "Kaiser"],
+            ["Gitarre", "Klavier"],
+            ["Bier", "Wein"],
+            ["Stuhl", "Sofa"],
+            ["Zeitung", "Buch"],
+            ["Gabel", "Löffel"],
+            ["Bäckerei", "Konditorei"],
+            ["Polizei", "Feuerwehr"],
+            ["Doktor", "Arzt"],
+            ["Bibliothek", "Buchladen"],
+            ["Winter", "Herbst"],
+            ["Sommer", "Frühling"],
+            ["Schokolade", "Karamell"],
+            ["Gitarre", "Bass"],
+            ["Regenbogen", "Wolke"],
+            ["Löwe", "Tiger"],
+            ["Park", "Garten"],
+            ["Zebra", "Pferd"],
+            ["Handy", "Smartphone"],
+            ["Baumhaus", "Zelt"],
+            ["Fisch", "Krabbe"],
+            ["Kaktus", "Palme"],
+            ["Schloss", "Burg"],
+            ["Strand", "Wüste"],
+            ["Fluss", "Meer"],
+            ["Wüste", "Oase"],
+            ["Wiese", "Feld"],
+            ["Himmel", "Wolken"],
+            ["Rucksack", "Koffer"],
+            ["Hemd", "Bluse"],
+            ["Schere", "Schraubenzieher"],
+            ["Brunnen", "Teich"],
+            ["Kartoffel", "Pommes"],
+            ["Kaffeemaschine", "Wasserkocher"],
+            ["Schnecke", "Wurm"],
+            ["Löwe", "Puma"],
+            ["Kuh", "Ochse"],
+            ["Pinsel", "Farbstift"],
+            ["Bär", "Waschbär"],
+            ["Blatt", "Zweig"],
+            ["Feuer", "Eis"],
+            ["Dach", "Zimmer"],
+            ["Schlauch", "Rohr"],
+            ["Klavier", "Flügel"],
+            ["Licht", "Scheinwerfer"],
+            ["Pilz", "Flechte"],
+            ["Schatten", "Dunkelheit"],
+            ["Fliege", "Mücke"],
+            ["Stein", "Kiesel"],
+            ["Telefon", "Fax"],
+            ["Muschel", "Perle"],
+            ["Schrank", "Kommode"],
+            ["Pfanne", "Topf"],
+            ["Kissen", "Decke"],
+            ["Hering", "Dorsch"],
+            ["Kirsche", "Pflaume"],
+            ["Holz", "Eisen"],
+            ["Joghurt", "Quark"],
+            ["Besen", "Schaufel"],
+            ["Kreide", "Marker"],
+            ["Schaf", "Ziege"],
+            ["Rose", "Lilie"],
+            ["Pfirsich", "Aprikose"],
+            ["Heizung", "Kamin"],
+            ["Zwiebel", "Knoblauch"],
+            ["Marathon", "Sprint"],
+            ["Diamant", "Kristall"],
+            ["Schwamm", "Lappen"],
+            ["Ofen", "Mikrowelle"],
+            ["Waffel", "Keks"],
+            ["Mond", "Sonne"],
+            ["Teller", "Schale"],
+            ["Bus", "Tram"],
+            ["Auto", "Lkw"],
+            ["Klavier", "Akkordeon"],
+            ["Schlüsselkarte", "Schlüssel"],
+            ["Veranda", "Balkon"],
+            ["Karotte", "Gurke"],
+            ["Schokolade", "Bonbon"],
+            ["Stift", "Feder"],
+            ["Sand", "Staub"],
+            ["Vase", "Krug"],
+            ["Mathe", "Physik"],
+            ["Toaster", "Mixer"],
+            ["Papagei", "Kakadu"],
+            ["Papier", "Pappe"],
+            ["Maus", "Tastatur"],
+            ["Knochen", "Skelett"],
+            ["Schleife", "Knoten"],
+            ["Ampel", "Zebrastreifen"],
+            ["Rolltreppe", "Fahrstuhl"],
+            ["Schlafanzug", "Nachthemd"],
+            ["Felsen", "Klippe"],
+            ["Wasserfall", "Stromschnellen"],
+            ["Kiesel", "Sandstein"],
+            ["Rose", "Tulpe"],
+            ["Delfin", "Wal"],
+            ["Komet", "Asteroid"],
+            ["Bus", "Bahn"],
+            ["Zebra", "Giraffe"],
+            ["Papagei", "Wellensittich"],
+            ["Orchester", "Chor"],
+            ["Buchseite", "Lesezeichen"],
+            ["Palast", "Villa"],
+        ]
+        
+    </script>
 
 </body>
+
 </html>
